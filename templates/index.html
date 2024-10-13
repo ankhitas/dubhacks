@@ -23,14 +23,13 @@
                     <div class="image-preview-container">
                         <img id="imagePreview" src="" alt="Image Preview" style="display: none;">
                     </div>
-                    <button type="submit" class="btn light-brown-btn btn-block">Submit</button>
+                    <button type="submit" class="btn light-green-btn btn-block">Submit</button>
                 </form>
                 <div class="result" id="result"></div>
             </div>
             <div class="prediction-container" id="predictionContainer" style="display: none;">
                 <h2>Prediction</h2>
                 <div class="result" id="resultDisplay"></div>
-                <h3>Suggestions</h3>
             </div>
         </div>
     </div>
@@ -60,7 +59,26 @@
                 processData: false,
                 contentType: false,
                 success: function(response) {
-                    $('#resultDisplay').text('Prediction: ' + response.prediction);
+                    // Check if prediction data exists
+                    if (response.prediction) {
+                        let resultHTML = '<ul>';
+                        response.prediction.forEach(item => {
+                            resultHTML += <li><strong>${item.name}</strong>: ${item.calories}, Serving Size: ${item.serving_size}, Total Fat: ${item.fat_total}, Saturated Fat: ${item.fat_saturated}, Protein: ${item.protein}, Sodium: ${item.sodium}, Potassium: ${item.potassium}, Cholesterol: ${item.cholesterol}, Carbohydrates: ${item.carbohydrates}, Fiber: ${item.fiber}, Sugar: ${item.sugar}</li>;
+                        });
+                        resultHTML += '</ul>';
+                        $('#resultDisplay').html(resultHTML);  // Display the formatted result
+                    } else if (response.error) {
+                        $('#resultDisplay').text('Error: ' + response.error);
+                    }
+                    
+                    // Display predicted indices if they exist
+                    if (response.predicted_indices) {
+                        $('#resultDisplay').append('<h4>Predicted Indices:</h4><ul id="predictedIndices"></ul>');
+                        response.predicted_indices.forEach(index => {
+                            $('#predictedIndices').append(<li>${index}</li>);
+                        });
+                    }
+                    
                     $('#uploadContainer').addClass('slide-out');  // Add class to slide out
                     $('#predictionContainer').fadeIn(500); // Show the prediction box
                 },
